@@ -98,19 +98,18 @@ if (!$_POST['evidence']) {
                         <p>Hasil Diagnosa.</p>
                     </div>
                     <?php
+                    include '../../koneksi1.php';
                     if (count($_POST['evidence']) < 2) {
-                        $gejala_id = intval($_POST['evidence'][0]);
-                        $confirmedDiseases = forwardChaining($_POST['evidence']);
-                        $frequencyCounter = array_count_values($confirmedDiseases);
-                        $mostFrequentDisease = array_search(max($frequencyCounter), $frequencyCounter);
-                        $penyakits = query("SELECT * FROM penyakits WHERE id = $mostFrequentDisease")[0];
-                        $penyakit_id = $penyakits['id'];
-                        $value = query("SELECT value FROM rules WHERE gejala_id = $gejala_id AND penyakit_id = $penyakit_id")[0];
-                        $value = round($value['value'] * 100, 2);
-                        // var_dump($value['value']);
-                        // die;
+                        echo "<script>
+                                Swal.fire({
+                                    title: 'Pilih Gejala',
+                                    text: 'Pilih minimal 2 gejala!',
+                                    icon: 'warning'
+                                }).then(function() {
+                                    window.location.href = 'pertanyaan.php';
+                                });
+                            </script>";
                     } else {
-                        include '../../koneksi1.php';
                         $sql = "SELECT GROUP_CONCAT(penyakits.kode_penyakit) 
                                 AS kdpenyakit,
                                     ROUND(AVG(rules.value), 1) AS average_cf,
@@ -149,7 +148,7 @@ if (!$_POST['evidence']) {
                             $theta = 1;
                             foreach ($densitas2 as $d) $theta -= $d[1];
                             $densitas2[] = array($fod, $theta);
-							$m = count($densitas2);
+                            $m = count($densitas2);
                             $densitas_baru = array();
                             for ($y = 0; $y < $m; $y++) {
                                 for ($x = 0; $x < 2; $x++) {
@@ -209,6 +208,7 @@ if (!$_POST['evidence']) {
                             }
                         }
                     }
+
                     ?>
                     <div class="card-body">
                         <div class="form-group row">
