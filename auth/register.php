@@ -1,30 +1,21 @@
 <?php
 session_start();
-if (isset($_SESSION["login"])) {
-    header("Location: ../admin/index.php");
-    exit;
+if( isset($_SESSION["login"]) ) {
+	header("Location: ../admin/index.php");
+	exit;
 }
 require '../function.php';
 
-if (isset($_POST["submit"])) {
-
-    $username = $_POST["username"];
-    $password = $_POST["password"];
-
-    $result = mysqli_query($conn, "SELECT * FROM users WHERE username = '$username'");
-
-    // cek username
-    if (mysqli_num_rows($result) === 1) {
-
-        // cek password
-        $row = mysqli_fetch_assoc($result);
-        if (password_verify($password, $row["password"])) {
-            $_SESSION["login"] = true;
-            header("Location: ../admin/index.php");
-            exit;
-        }
+if( isset($_POST["submit"]) ) {
+        
+    if( registrasi($_POST) > 0 ) {
+        echo "<script>
+                alert('user baru berhasil ditambahkan!');
+                document.location.href = 'login.php';
+              </script>";
+    } else {
+        echo mysqli_error($conn);
     }
-    $error = true;
 }
 ?>
 <!doctype html>
@@ -81,7 +72,7 @@ if (isset($_POST["submit"])) {
     <div class="d-flex align-items-center justify-content-center h-75">
         <div class="card text-center">
             <div class="card-body">
-                <h5 style="color: #80be6a" class="p-3">Login Admin</h5>
+                <h5 style="color: #80be6a" class="p-3">Registrasi</h5>
                 <?php if (isset($error)) : ?>
                     <p style="color: red; font-style: italic;">username / password salah</p>
                 <?php endif; ?>
@@ -92,21 +83,11 @@ if (isset($_POST["submit"])) {
                     <div class="form-group">
                         <input id="password" type="password" name="password" class="form-control" required placeholder="Password">
                     </div>
-                    <div class="row justify-content-between  ">
-                        <div class="col-xs-6">
-                            <div>
-                                <button type="submit" name="submit" onMouseOver="this.style.color='#80be6a'" onMouseOut="this.style.color='#000'" style="background-color: #b7d5ac;" class="btn btn-block">
-                                    Login
-                                </button>
-                            </div>
-
-                        </div>
-                        <div class="col-xs-6">
-                            <div>
-                                <a href="register.php" name="submit" onMouseOver="this.style.color='#80be6a'" onMouseOut="this.style.color='#000'" style="background-color: #b7d5ac;" class="btn btn-block">
-                                    register
-                                </a>
-                            </div>
+                    <div class="row">
+                        <div class="col-xs-6 offset-1">
+                            <button type="submit" name="submit" onMouseOver="this.style.color='#80be6a'" onMouseOut="this.style.color='#000'" style="background-color: #b7d5ac;" class="btn btn-block">
+                                Register
+                            </button>
                         </div>
                     </div>
                 </form>
