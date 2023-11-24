@@ -91,6 +91,10 @@ $gejala = query("SELECT * FROM gejalas WHERE kode_gejala = '$id'")[0];
                 Rules</a>
         </div>
         <div>
+            <a href="../hasildiagnosa/" class="">Daftar
+                Hasil Diagnosa</a>
+        </div>
+        <div>
             <a href="../../auth/logout.php">Keluar</a>
         </div>
     </div>

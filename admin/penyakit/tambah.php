@@ -88,6 +88,10 @@ include '../../function.php';
                 Rules</a>
         </div>
         <div>
+            <a href="../hasildiagnosa/" class="">Daftar
+                Hasil Diagnosa</a>
+        </div>
+        <div>
             <a href="../../auth/logout.php">Keluar</a>
         </div>
     </div>

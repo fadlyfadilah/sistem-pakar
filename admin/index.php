@@ -85,6 +85,10 @@ if (empty($_SESSION['login'])) {
                 Rules</a>
         </div>
         <div>
+            <a href="../admin/hasildiagnosa/" class="">Daftar
+                Hasil Diagnosa</a>
+        </div>
+        <div>
             <a href="../auth/logout.php">Keluar</a>
         </div>
     </div>

@@ -4,8 +4,17 @@ if (empty($_SESSION['login'])) {
     header("Location: ../../auth/login.php");
 }
 include '../../function.php';
-$id = $_GET["id"];
-$penyakit = query("SELECT * FROM penyakits WHERE kode_penyakit = '$id'")[0];
+$hasils = query("SELECT h.*, p.nama, y.nama_penyakit, y.solusi
+FROM hasil AS h
+JOIN penggunas AS p ON p.id = h.pengguna_id
+JOIN penyakits AS y ON y.kode_penyakit = h.kode_penyakit COLLATE utf8mb4_unicode_ci
+WHERE (h.tanggal, h.persentase) = (
+    SELECT tanggal, MAX(persentase)
+    FROM hasil
+    WHERE tanggal = h.tanggal
+    GROUP BY tanggal
+    LIMIT 1
+);");
 ?>
 <!doctype html>
 <html lang="en">
@@ -81,11 +90,11 @@ $penyakit = query("SELECT * FROM penyakits WHERE kode_penyakit = '$id'")[0];
                 Gejala</a>
         </div>
         <div>
-            <a href="../penyakit/" class="activee">Daftar
+            <a href="../penyakit/" class="">Daftar
                 penyakit</a>
         </div>
         <div>
-            <a href="../rule/" class="">Daftar
+            <a href="../rule/" class="activee">Daftar
                 Rules</a>
         </div>
         <div>
@@ -101,61 +110,83 @@ $penyakit = query("SELECT * FROM penyakits WHERE kode_penyakit = '$id'")[0];
     <!-- isianweb -->
     <div class="container mt-3">
         <div class="row mt-3">
-            <div class="col-lg-10 offset-1">
+            <div class="col-lg-12">
                 <div class="card">
                     <div class="card-heading p-3">
-                        Ubah Penyakit
+                        Daftar Hasil Diagnosa
                     </div>
                     <div class="card-body">
-                        <form method="POST" action="" autocomplete="off">
-                            <input type="hidden" name="id" value="<?= $penyakit['id'] ?>">
-                            <div class="form-group">
-                                <label for="kode_penyakit">Kode Penyakit</label>
-                                <input type="text" name="kode_penyakit" class="form-control" id="kode_penyakit" placeholder="P0.." value="<?= $penyakit['kode_penyakit'] ?>" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="nama_penyakit">Nama Penyakit</label>
-                                <input type="text" name="nama_penyakit" class="form-control" id="nama_penyakit" placeholder="Penyakit..." value="<?= $penyakit['nama_penyakit'] ?>" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="definisi">Definisi Penyakit</label>
-                                <input type="text" name="definisi" class="form-control" id="definisi" placeholder="Penyakit ini ..." value="<?= $penyakit['definisi'] ?>" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="solusi">Solusi</label>
-                                <input type="text" name="solusi" class="form-control" id="solusi" placeholder="Solusi nya..." value="<?= $penyakit['solusi'] ?>" required>
-                            </div>
-                            <button type="submit" name="submit" class="btn btn-primary mb-2">Simpan</button>
-                        </form>
+                        <div class="table-responsive">
+                            <table class=" table table-bordered table-striped table-hover datatable datatable-gejala">
+                                <thead>
+                                    <tr>
+                                        <th width="10">
+
+                                        </th>
+                                        <th>
+                                            Nama Pengguna
+                                        </th>
+                                        <th>
+                                            Kode Penyakit - Nama Penyakit
+                                        </th>
+                                        <th>
+                                            Nilai CF/Belief
+                                        </th>
+                                        <th>
+                                            Solusi
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php $no = 1 ?>
+                                    <?php foreach ($hasils as $hasil) : ?>
+                                        <tr data-entry-id="<?= $hasil['id'] ?>">
+                                            <td>
+                                                <?= $no++ ?>
+                                            </td>
+                                            <td>
+                                                <?= $hasil['nama'] ?>
+                                            </td>
+                                            <td>
+                                                <?= $hasil['kode_penyakit'] ?> | <?= $hasil['nama_penyakit'] ?>
+                                            </td>
+                                            <td>
+                                                <?= $hasil['persentase'] ?>
+                                            </td>
+                                            <td>
+                                                <?= $hasil['solusi'] ?>
+                                            </td>
+                                        <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <?php
-    if (isset($_POST["submit"])) {
-        if (editpenyakit($_POST) > 0) {
-            echo "<script>
-                    Swal.fire({
-                        title: 'Berhasil',
-                        text: 'Berhasil Mengubah Penyakit!',
-                        icon: 'success'
-                    }).then(function() {
-                        window.location.href = 'index.php';
-                    });
-                </script>";
-        } else {
-            echo "
-                <script>
-                    alert('data gagal mengubah!');
-                    document.location.href = 'index.php';
-                </script>
-            ";
-        }
-    }
-    ?>
-    <!-- Optional JavaScript; choose one of the two! -->
 
+    <!-- Optional JavaScript; choose one of the two! -->
+    <script>
+        function confirmDelete(id) {
+            // Display a confirmation dialog
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Anda tidak dapat mengembalikan tindakan ini!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // If the user confirms, redirect to the delete script
+                    window.location.href = 'hapus.php?id=' + id;
+                }
+            });
+        }
+    </script>
     <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
     </script>
@@ -175,7 +206,7 @@ $penyakit = query("SELECT * FROM penyakits WHERE kode_penyakit = '$id'")[0];
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js">
     </script>
     <script>
-        new DataTable('.datatable-Gejala');
+        new DataTable('.datatable-gejala');
     </script>
 </body>
 

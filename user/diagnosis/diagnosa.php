@@ -125,7 +125,6 @@ if (!$_POST['evidence']) {
                         while ($row = $result->fetch_row()) {
                             $evidence[] = $row;
                         }
-                        //--- menentukan environement
                         $sql = "SELECT GROUP_CONCAT(kode_penyakit) FROM penyakits ";
                         $result = $db->query($sql);
                         $row = $result->fetch_row();
@@ -134,7 +133,11 @@ if (!$_POST['evidence']) {
                         while (!empty($evidence)) {
                             $densitas1[0] = array_shift($evidence);
                             $densitas1[1] = array($fod, 1 - $densitas1[0][1]);
-                            $Y2 = 1 - $densitas1[0][1];
+                            if ($densitas1[0][1] === '1') {
+                                $Y2 = 1;
+                            } else {
+                                $Y2 = 1 - $densitas1[0][1];
+                            }
                             $densitas2 = array();
                             if (empty($densitas_baru)) {
                                 $densitas2[0] = array_shift($evidence);
@@ -151,6 +154,7 @@ if (!$_POST['evidence']) {
                             $m = count($densitas2);
                             $densitas_baru = array();
                             for ($y = 0; $y < $m; $y++) {
+
                                 for ($x = 0; $x < 2; $x++) {
                                     if (!($y == $m - 1 && $x == 1)) {
                                         $v = explode(',', $densitas1[$x][0]);
@@ -162,7 +166,11 @@ if (!$_POST['evidence']) {
                                             $k = "&theta;";
                                         } else {
                                             $k = implode(',', $vw); //echo "{".print_r($k)."}= $nilaiX1Y1"; 
-                                            $nilaiX1Y1 = $densitas1[$x][1] * $densitas2[$y][1];
+                                            if ($densitas1[$x][1] === 1) {
+                                                $nilaiX1Y1 = 1 * $densitas2[$y][1];
+                                            } else {
+                                                $nilaiX1Y1 = 1 * $densitas2[$y][1];
+                                            }
                                         }
                                         if (!isset($densitas_baru[$k])) {
                                             $densitas_baru[$k] = $densitas1[$x][1] * $densitas2[$y][1];
@@ -181,40 +189,35 @@ if (!$_POST['evidence']) {
                                     $densitas_baru[$k] = $d / (1 - (isset($densitas_baru["&theta;"]) ? $densitas_baru["&theta;"] : 0));
                                 }
                             }
-                            unset($densitas_baru["&theta;"]);
-                            arsort($densitas_baru);
-                            $arrPenyakit = array();
-                            $queryPasien = $db->query("SELECT * FROM penggunas ORDER BY id DESC");
-                            $dataPasien = $queryPasien->fetch_assoc();
-                            $queryP = $db->query("SELECT * FROM penyakits");
-                            while ($dataP = $queryP->fetch_assoc()) {
-                                $arrPenyakit[$dataP['kode_penyakit']] = $dataP['nama_penyakit'];
-                            }
-                            $highestDensity = 0;
-                            $selectedPenyakit = '';
-                            foreach ($densitas_baru as $kdpenyakit => $density) {
-                                if ($density > $highestDensity) {
-                                    $highestDensity = $density;
-                                    $selectedPenyakit = $kdpenyakit;
+                        } //## end --menghitung nilai densitas (m) baru
+                        unset($densitas_baru["&theta;"]);
+                        arsort($densitas_baru);
+                        $arrPenyakit = array();
+                        $queryPasien = mysqli_query($conn, "SELECT * FROM penggunas ORDER BY id DESC");
+                        $dataPasien = mysqli_fetch_array($queryPasien);
+                        $queryP = mysqli_query($conn, "SELECT * FROM penyakits");
+                        while ($dataP = mysqli_fetch_array($queryP)) {
+                            $arrPenyakit["$dataP[kode_penyakit]"] = $dataP['nama_penyakit'];
+                        }
+                        $dataSama = array_intersect_key($arrPenyakit, $densitas_baru);
+                        foreach ($dataSama as $k => $a) {
+                            foreach ($densitas_baru as $kdpenyakit => $ranking) {
+                                if ($k == $kdpenyakit) {
+                                    $strS = mysqli_query($conn, "SELECT * FROM penyakits WHERE kode_penyakit='$k' ");
+                                    $dataS = mysqli_fetch_array($strS);
+                                    $persen = round($densitas_baru[$kdpenyakit] * 100, 2);
+                                    $idPasien = $dataPasien['id'];
+                                    $querySimpanP = mysqli_query($conn, " INSERT INTO hasil (pengguna_id,kode_penyakit,persentase) VALUES ('$idPasien','$k',$persen ) ");
                                 }
-                            }
-                            if ($selectedPenyakit != '') {
-                                // Mengambil solusi penyakit
-                                $strS = $db->query("SELECT * FROM penyakits WHERE kode_penyakit='$selectedPenyakit'");
-                                $dataS = $strS->fetch_assoc();
-                                $persen = round($highestDensity * 100, 2);
-                                // $idPasien = $dataPasien['idpasien'];
-                                // $querySimpanP = $db->query("INSERT INTO hasil (pengguna_id, kode_penyakit, persentase) VALUES ('$idPasien', '$selectedPenyakit', '$persen')");
                             }
                         }
                     }
-
                     ?>
                     <div class="card-body">
                         <div class="form-group row">
                             <label for="staticEmail" class="col-sm-3 col-form-label">Nama penyakit</label>
                             <div class="col-sm-9">
-                                <p type="text" class="form-control-plaintext"><?= $penyakits['nama_penyakit'] ?? $dataS['nama_penyakit'] ?? '' ?></p>
+                                <p type="text" class="form-control-plaintext"><?= $dataS['nama_penyakit'] ?? '' ?></p>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -237,13 +240,13 @@ if (!$_POST['evidence']) {
                         <div class="form-group row">
                             <label for="staticEmail" class="col-sm-3 col-form-label">Densitas</label>
                             <div class="col-sm-9">
-                                <p type="text" class="form-control-plaintext"><?= $value ?? $persen ?? '0' ?>%</p>
+                                <p type="text" class="form-control-plaintext"><?= $persen ?? '0' ?>%</p>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="staticEmail" class="col-sm-3 col-form-label">Solusi</label>
                             <div class="col-sm-9">
-                                <p type="text" class="form-control-plaintext"><?= $penyakits['solusi'] ?? $dataS['solusi'] ?? "Solusi belum di temukan." ?></p>
+                                <p type="text" class="form-control-plaintext"><?= $dataS['solusi'] ?? "Solusi belum di temukan." ?></p>
                             </div>
                         </div>
                         <a class="btn btn-secondary" href="pertanyaan.php" role="button">Diagnosa Lagi!</a>

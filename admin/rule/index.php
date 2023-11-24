@@ -90,6 +90,10 @@ $rules = query("SELECT g.kode_gejala, g.nama_gejala, p.kode_penyakit, p.nama_pen
                 Rules</a>
         </div>
         <div>
+            <a href="../hasildiagnosa/" class="">Daftar
+                Hasil Diagnosa</a>
+        </div>
+        <div>
             <a href="../../auth/logout.php">Keluar</a>
         </div>
     </div>
