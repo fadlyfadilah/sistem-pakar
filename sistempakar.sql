@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 22, 2023 at 10:38 AM
+-- Generation Time: Nov 24, 2023 at 08:34 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -87,7 +87,8 @@ CREATE TABLE `hasil` (
   `id` int(11) NOT NULL,
   `pengguna_id` int(11) NOT NULL,
   `kode_penyakit` varchar(5) NOT NULL,
-  `persentase` varchar(5) NOT NULL
+  `persentase` double(8,2) NOT NULL,
+  `tanggal` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -112,7 +113,7 @@ CREATE TABLE `penggunas` (
 
 CREATE TABLE `penyakits` (
   `id` bigint(20) UNSIGNED NOT NULL,
-  `kode_penyakit` varchar(255) NOT NULL,
+  `kode_penyakit` varchar(5) NOT NULL,
   `nama_penyakit` varchar(255) NOT NULL,
   `definisi` varchar(255) DEFAULT NULL,
   `solusi` varchar(255) DEFAULT NULL,
@@ -126,7 +127,7 @@ CREATE TABLE `penyakits` (
 
 INSERT INTO `penyakits` (`id`, `kode_penyakit`, `nama_penyakit`, `definisi`, `solusi`, `created_at`, `updated_at`) VALUES
 (1, 'P01', 'Jamur Akar Putih (Rigidoporus microporus)', '', NULL, NULL, NULL),
-(2, 'P02', 'Bidang Sadap Mouldy Rot (Ceratocystis fimbriata)', '', NULL, NULL, NULL),
+(2, 'P02', 'Bidang Sadap Mouldy Rot (Ceratocystis fimbriata)', '', 'Pengolesa Fungisida : bahan aktif benomyl, hesakonazol, carbendazim, mankozeb, dsb.\r\nPisau sadap dicelup dalam larutan fungisida untuk mencegah penularan penyakit.', NULL, NULL),
 (3, 'P03', 'Lapuk Batang dan Cabang (Botryodiplodia theobromae)', '', NULL, NULL, NULL),
 (4, 'P04', 'Jamur Upas (Corticium salmonicolor)', '', NULL, NULL, NULL),
 (5, 'P05', 'Gugur Daun Corynespora (Corynespora Cassiicola)', '', NULL, NULL, NULL),
@@ -215,7 +216,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `created_at`, `updated_at`) VALUES
-(1, 'Admin', '$2y$10$QljS1iec0LLg.5FUiE1gROtA0yuAYQkqQmpWy3eEJISGy9mP.e/7G', NULL, NULL);
+(1, 'Admin', '$2y$10$QljS1iec0LLg.5FUiE1gROtA0yuAYQkqQmpWy3eEJISGy9mP.e/7G', NULL, NULL),
+(2, 'fadly', '$2y$10$83cD11nPS4rW9AT.1H/sQeyKc13PkJFRR.sHU8mvI5yRdtaPks0bS', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
 
 --
 -- Indexes for dumped tables
@@ -295,7 +297,7 @@ ALTER TABLE `rules`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

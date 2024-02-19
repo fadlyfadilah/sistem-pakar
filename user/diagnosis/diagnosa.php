@@ -211,13 +211,23 @@ if (!$_POST['evidence']) {
                                 }
                             }
                         }
+                        $maxValue = max($densitas_baru);
+                        $maxKey = array_search($maxValue, $densitas_baru);
+                        // var_dump($densitas_baru);
+                        // die;
+                        if (array_key_exists($maxKey, $dataSama)) {
+                            $nilaiYangCocok = $dataSama[$maxKey];
+                            $persenn = round($maxValue * 100, 2);
+                        } else {
+                            $nilaiYangCocok = NULL;
+                        }
                     }
                     ?>
                     <div class="card-body">
                         <div class="form-group row">
                             <label for="staticEmail" class="col-sm-3 col-form-label">Nama penyakit</label>
                             <div class="col-sm-9">
-                                <p type="text" class="form-control-plaintext"><?= $dataS['nama_penyakit'] ?? '' ?></p>
+                                <p type="text" class="form-control-plaintext"><?= $nilaiYangCocok ?? $dataS['nama_penyakit'] ?></p>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -240,7 +250,7 @@ if (!$_POST['evidence']) {
                         <div class="form-group row">
                             <label for="staticEmail" class="col-sm-3 col-form-label">Densitas</label>
                             <div class="col-sm-9">
-                                <p type="text" class="form-control-plaintext"><?= $persen ?? '0' ?>%</p>
+                                <p type="text" class="form-control-plaintext"><?= $persenn ??  $persen ?>%</p>
                             </div>
                         </div>
                         <div class="form-group row">

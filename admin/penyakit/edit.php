@@ -119,11 +119,11 @@ $penyakit = query("SELECT * FROM penyakits WHERE kode_penyakit = '$id'")[0];
                             </div>
                             <div class="form-group">
                                 <label for="definisi">Definisi Penyakit</label>
-                                <input type="text" name="definisi" class="form-control" id="definisi" placeholder="Penyakit ini ..." value="<?= $penyakit['definisi'] ?>" required>
+                                <input type="text" name="definisi" class="form-control" id="definisi" placeholder="Penyakit ini ..." value="<?= $penyakit['definisi'] ?>">
                             </div>
                             <div class="form-group">
                                 <label for="solusi">Solusi</label>
-                                <input type="text" name="solusi" class="form-control" id="solusi" placeholder="Solusi nya..." value="<?= $penyakit['solusi'] ?>" required>
+                                <textarea type="text" name="solusi" class="form-control" id="solusi" placeholder="Solusi nya..." value="<?= $penyakit['solusi'] ?>"></textarea>
                             </div>
                             <button type="submit" name="submit" class="btn btn-primary mb-2">Simpan</button>
                         </form>
